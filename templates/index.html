@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address and Link Scraper</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+       
+    </style>
+</head>
+<body>
+
+    <h1>Scrape Address and Link</h1>
+    <div class="container">
+        <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter Name">
+        </div>
+        <div>
+            <label for="city">City</label>
+            <input type="text" id="city" placeholder="Enter City">
+        </div>
+        <div>
+            <label for="region">Region</label>
+            <input type="text" id="region" placeholder="Enter Region">
+        </div>
+        <div>
+            <label for="streetname">Street Name</label>
+            <input type="text" id="streetname" placeholder="Enter Street Name">
+        </div>
+    </div>
+
+   
+    <button onclick="fetchData()">Fetch Details</button>
+
+    <div class="container">
+        <div>
+            <label for="address">Address</label>
+            <textarea id="address" class="output" readonly></textarea>
+        </div>
+        <div>
+            <label for="link">Link</label>
+            <textarea id="link" class="output" readonly></textarea>
+        </div>
+        <div>
+            <label for="similarity">Similarity Score</label>
+            <textarea id="similarity" class="output" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const name = document.getElementById('name').value;
+            const city = document.getElementById('city').value;
+            const region = document.getElementById('region').value;
+            const streetname = document.getElementById('streetname').value;
+
+            
+            document.getElementById('address').value = '';
+            document.getElementById('link').value = '';
+            document.getElementById('similarity').value = '';
+
+            if (!name && !city && !region && !streetname) {
+                alert("Please enter a Name, City, Street Name, or Region.");
+                return;
+            }
+
+            const response = await fetch('/fetch-details/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ name, city, region, streetname })
+            });
+
+            const data = await response.json();
+            if (data.address) {
+                document.getElementById('address').value = data.address;
+                document.getElementById('link').value = data.link;
+                document.getElementById('similarity').value = data.similarity_score || 'N/A';
+            } else {
+                alert("No data found, please provide additional details.");
+            }
+        }
+    </script>
+
+</body>
+</html>
