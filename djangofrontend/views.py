@@ -11,6 +11,8 @@ def index(request):
 
 
 
+
+
 @csrf_exempt
 def scrape_address_with_selenium(request):
     if request.method == 'POST':
@@ -25,12 +27,15 @@ def scrape_address_with_selenium(request):
         def search_address(query):
             url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
             driver.get(url)
-            time.sleep(3)
+            time.sleep(5)
             try:
                 address_element = driver.find_element(By.CLASS_NAME, 'LrzXr')
                 address = address_element.text
-                link = driver.current_url
+                 
+                link_element  = driver.find_element(By.CSS_SELECTOR, 'a[href*="/maps/place"]')
+                link =  link_element.get_attribute('href')
                 return address, link
+            
             except:
                 return None, None
 
@@ -45,7 +50,7 @@ def scrape_address_with_selenium(request):
 
         driver.quit()
 
-        # Ensure this line returns a single JsonResponse, not a tuple
+        
         return JsonResponse({'address': address, 'link': link})
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
